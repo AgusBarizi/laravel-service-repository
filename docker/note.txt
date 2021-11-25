@@ -1,0 +1,6 @@
+docker exec -it containerName /bin/bash
+docker exec -it containerName /bin/sh
+docker exec -it containerName sh
+
+docker cp <src-path> <container>:<dest-path> 
+docker cp <container>:<src-path> <local-dest-path> 

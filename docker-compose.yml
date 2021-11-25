@@ -1,0 +1,56 @@
+version: "3.9"
+networks:
+  user_management_network:
+
+services:
+  nginx:
+    container_name: user_management_nginx
+    image: nginx:stable-alpine
+    depends_on:
+      - php
+      - mysql
+    ports:
+      - "8086:80"
+    volumes:
+      - ./src:/usr/share/nginx/html
+      # - ./src:/code
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/nginx/log:/var/log/nginx
+    networks:
+      - user_management_network
+  
+  php:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: user_management_php
+    ports:
+      - "9000:9000"
+    volumes: 
+      - ./src:/var/www/html
+      # - ./src:/code
+    networks:
+      - user_management_network
+  
+  mysql:
+    container_name: user_management_mysql
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./docker/mysql:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: homestead
+      MYSQL_USER: homestead
+      MYSQL_PASSWORD: 1234
+      MYSQL_ROOT_PASSWORD: secretpwd
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    networks:
+      - user_management_network
+      
+    
+
+  
+
