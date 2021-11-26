@@ -2,7 +2,9 @@
 
 namespace App\Services;
 use App\Repositories\UserRepository;
-use Dotenv\Exception\ValidationException;
+use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -28,13 +30,21 @@ class UserService{
 
         $validator = Validator::make($data, [
             'name'=>'required',
-            'email'=>'required',
+            'email'=>[
+                'required',
+                // 'unique:users,email'
+                function ($attribute, $value, $fail) use($data) {
+                    try{
+                        $this->userRepository->findByEmail($data['email']);
+                        $fail('The '.$attribute.' has already been taken.');
+                    }catch(Exception $e){}
+                },
+            ],
             'password'=>'required'
         ]);
 
         if($validator->fails()){
-            // throw new ValidationException($validator->errors());
-            throw new InvalidArgumentException($validator->errors());
+            throw new ValidationException($validator->errors());
         }
 
         $data['password'] = Hash::make(trim($data['password']));
