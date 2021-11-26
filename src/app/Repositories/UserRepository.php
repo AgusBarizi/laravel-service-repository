@@ -2,8 +2,9 @@
 
 namespace App\Repositories;
 use App\Models\User;
+use App\Interfaces\UserRepositoryInterface;
 
-class UserRepository{
+class UserRepository implements UserRepositoryInterface{
 
     protected $user;
 
@@ -20,9 +21,12 @@ class UserRepository{
     }
 
     public function findById($id){
-
         $user = $this->user->findOrFail($id);
+        return $this->format($user);
+    }
 
+    public function findByEmail($email){
+        $user = $this->user->where('email', $email)->firstOrFail();
         return $this->format($user);
     }
 
@@ -39,8 +43,8 @@ class UserRepository{
         return $this->format($user->fresh());
     }
 
-    public function format($user){
-        return [
+    private function format($user){
+        $result = [
             'user_id' =>$user->id,
             'name' =>$user->name,
             'email' =>$user->email,
@@ -48,6 +52,9 @@ class UserRepository{
             'created_at' =>date('Y-m-d H:i:s', strtotime($user->created_at)),
             'updated_at' =>date('Y-m-d H:i:s', strtotime($user->updated_at)),
         ];
+        if(isset($user['password'])) $result['password'] = $user['password'];
+        return $result;
+
     }
 
 }

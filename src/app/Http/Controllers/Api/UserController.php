@@ -9,6 +9,7 @@ use App\Traits\ApiResponser;
 
 use App\Repositories\UserRepository;
 use App\Services\UserService;
+use Throwable;
 
 class UserController extends Controller
 {
@@ -36,13 +37,9 @@ class UserController extends Controller
     }
 
     public function show($id){
-        try{
-            $res = $this->userService->findById($id);
-            return $this->successResponse($res);
-
-        }catch(Exception $e){
-            return $this->errorResponse($e->getMessage());
-        }
+        
+        $res = $this->userService->findById($id);
+        return $this->successResponse($res);
     }
 
     public function store(Request $request){
@@ -50,13 +47,8 @@ class UserController extends Controller
         $data = $request->only([
             'name','email','password'
         ]);
-        
-        try{
-            $res = $this->userService->save($data);
-            return $this->successResponse($res);
 
-        }catch(Exception $e){
-            return $this->errorResponse($e->getMessage());
-        }
+        $res = $this->userService->save($data);
+        return $this->successResponse($res);
     }
 }

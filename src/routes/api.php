@@ -19,6 +19,9 @@ use App\Http\Controllers\Api\UserController;
 //     return $request->user();
 // });
 
+Route::get('/ping', function(){
+    return 'pong';
+});
 Route::prefix('users')->group(function(){
     Route::get('/', [UserController::class, 'index']);
 });
