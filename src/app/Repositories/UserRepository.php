@@ -17,7 +17,7 @@ class UserRepository implements UserRepositoryInterface{
         $users = $this->user->get()->map(function($user){
             return $this->format($user);
         });
-        return $users;
+        return $users->toArray();
     }
 
     public function findById($id){
@@ -28,6 +28,17 @@ class UserRepository implements UserRepositoryInterface{
     public function findByEmail($email){
         $user = $this->user->where('email', $email)->firstOrFail();
         return $this->format($user);
+    }
+
+    public function delete($id){
+        $user = $this->user->findOrFail($id);
+        return $user->delete();
+    }
+
+    public function update($id, $data){
+        $user = $this->user->findOrFail($id);
+        $user->update($data);
+        return $this->format($user->fresh());
     }
 
     public function save($data){
@@ -53,7 +64,7 @@ class UserRepository implements UserRepositoryInterface{
             'updated_at' =>date('Y-m-d H:i:s', strtotime($user->updated_at)),
         ];
         if(isset($user['password'])) $result['password'] = $user['password'];
-        return $result;
+        return (object)$result;
 
     }
 
