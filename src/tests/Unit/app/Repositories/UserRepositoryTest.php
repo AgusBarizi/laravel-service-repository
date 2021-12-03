@@ -19,20 +19,29 @@ class UserRepositoryTest extends TestCase
      * 
      * @return void
      */
+    use WithFaker;
+
+    protected $userRepository;
+    
+    public function setUp():void
+    {
+        parent::setUp();
+        $this->userRepository = new UserRepository(new User());
+    }
+
 
     public function testSave()
     {
         $this->withoutExceptionHandling();
         $plain_password = 'password';
         $params = [
-            'name' => 'Agus',
-            'email' => random_int(0,100).'agusbarizi@gmail.com',
+            'name' => $this->faker->name(),
+            'email' => $this->faker->unique()->safeEmail(),
             'password' => Hash::make($plain_password),
             'email_verified_at' => now(),
-            'remember_token' => 1,
+            'remember_token' => \Str::random(10),
         ];
-        $userRepository = new UserRepository(new User());
-        $result = $userRepository->save($params);
+        $result = $this->userRepository->save($params);
             
         $this->assertEquals($params['name'], $result->name);
         $this->assertEquals($params['email'], $result->email);
@@ -44,8 +53,7 @@ class UserRepositoryTest extends TestCase
         $this->withoutExceptionHandling();
         $user = User::factory()->create();
         
-        $userRepository = new UserRepository(new User());
-        $result = $userRepository->getAll();
+        $result = $this->userRepository->getAll();
         // print_r($result);
         $this->assertIsArray($result);
     }
@@ -55,8 +63,7 @@ class UserRepositoryTest extends TestCase
         $this->withoutExceptionHandling();
         $user = User::factory()->create();
         
-        $userRepository = new UserRepository(new User());
-        $result = $userRepository->findById($user->id);
+        $result = $this->userRepository->findById($user->id);
 
         $this->assertEquals($user->id, $result->user_id);
         $this->assertEquals($user->email, $result->email);
@@ -67,8 +74,7 @@ class UserRepositoryTest extends TestCase
         $this->withoutExceptionHandling();
         $user = User::factory()->create();
         
-        $userRepository = new UserRepository(new User());
-        $result = $userRepository->findByEmail($user->email);
+        $result = $this->userRepository->findByEmail($user->email);
 
         $this->assertEquals($user->id, $result->user_id);
         $this->assertEquals($user->email, $result->email);
@@ -79,11 +85,10 @@ class UserRepositoryTest extends TestCase
         $this->withoutExceptionHandling();
         $user = User::factory()->create();
         
-        $userRepository = new UserRepository(new User());
         $params = [
             'name'=>'John Smith'
         ];
-        $result = $userRepository->update($user->id, $params);
+        $result = $this->userRepository->update($user->id, $params);
         // print_r($result);
         $this->assertEquals($user->id, $result->user_id);
         $this->assertEquals($params['name'], $result->name);
@@ -94,8 +99,7 @@ class UserRepositoryTest extends TestCase
         $this->withoutExceptionHandling();
         $user = User::factory()->create();
         
-        $userRepository = new UserRepository(new User());
-        $result = $userRepository->delete($user->id);
+        $result = $this->userRepository->delete($user->id);
         // \dd($result);
         $this->assertTrue($result);
     }
